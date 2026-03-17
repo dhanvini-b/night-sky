@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ space_name }} — night sky</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0e1a;
+      overflow: hidden;
+      font-family: 'Georgia', serif;
+    }
+
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      cursor: crosshair;
+    }
+
+    /* top bar */
+    .topbar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      padding: 1.2rem 1.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .sky-name {
+      font-size: 0.9rem;
+      color: #5a5a7a;
+      letter-spacing: 0.1em;
+    }
+
+    .share-btn {
+      pointer-events: all;
+      background: transparent;
+      border: 1px solid #2a2a4a;
+      color: #5a5a7a;
+      font-family: 'Georgia', serif;
+      font-size: 0.8rem;
+      padding: 0.35rem 1rem;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      transition: border-color 0.3s, color 0.3s;
+    }
+
+    .share-btn:hover { border-color: #6a6a9a; color: #9a9aba; }
+
+    .copied {
+      color: #7a9a7a;
+      font-size: 0.75rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .copied.show { opacity: 1; }
+
+    /* tooltip */
+    .tooltip {
+      position: absolute;
+      background: #0d1225;
+      border: 1px solid #2a2a4a;
+      color: #c8c8e0;
+      padding: 0.8rem 1rem;
+      max-width: 220px;
+      pointer-events: all;
+      opacity: 0;
+      transition: opacity 0.25s;
+      line-height: 1.5;
+    }
+
+    .tooltip.show { opacity: 1; }
+
+    .tooltip-message {
+      font-size: 0.9rem;
+      margin-bottom: 0.4rem;
+      color: #d8d8f0;
+    }
+
+    .tooltip-author {
+      font-size: 0.75rem;
+      color: #5a5a7a;
+    }
+
+    /* add star form */
+    .add-form {
+      position: absolute;
+      background: #0d1225;
+      border: 1px solid #2a2a4a;
+      padding: 1.2rem;
+      width: 240px;
+      display: none;
+    }
+
+    .add-form.show { display: block; }
+
+    .add-form textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #2a2a4a;
+      color: #c8c8e0;
+      font-family: 'Georgia', serif;
+      font-size: 0.85rem;
+      resize: none;
+      outline: none;
+      padding: 0.3rem 0;
+      margin-bottom: 0.8rem;
+      line-height: 1.5;
+    }
+
+    .add-form input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #2a2a4a;
+      color: #c8c8e0;
+      font-family: 'Georgia', serif;
+      font-size: 0.8rem;
+      outline: none;
+      padding: 0.3rem 0;
+      margin-bottom: 1rem;
+    }
+
+    .add-form input::placeholder,
+    .add-form textarea::placeholder { color: #2a2a4a; }
+
+    .form-buttons { display: flex; gap: 0.6rem; }
+
+    .form-buttons button {
+      flex: 1;
+      background: transparent;
+      border: 1px solid #2a2a4a;
+      color: #7a7a9a;
+      font-family: 'Georgia', serif;
+      font-size: 0.75rem;
+      padding: 0.4rem;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .form-buttons button:hover { border-color: #6a6a9a; color: #9a9aba; }
+    .form-buttons .submit { border-color: #4a4a7a; color: #9a9aba; }
+  </style>
+</head>
+<body>
+
+  <canvas id="sky"></canvas>
+
+  <div class="topbar">
+    <span class="sky-name">{{ space_name }}</span>
+    <div style="display:flex; align-items:center; gap:1rem;">
+      <span class="copied" id="copied">link copied</span>
+      <button class="share-btn" onclick="copyLink()">share</button>
+    </div>
+  </div>
+
+  <div class="tooltip" id="tooltip">
+  <div class="tooltip-message" id="tooltip-message"></div>
+  <div class="tooltip-author" id="tooltip-author"></div>
+  <div style="margin-top: 0.6rem; text-align: right;">
+    <button onclick="deleteStar()" style="
+      background: transparent;
+      border: none;
+      color: #3a3a5a;
+      font-family: 'Georgia', serif;
+      font-size: 0.72rem;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      padding: 0;
+      transition: color 0.2s;
+    " onmouseover="this.style.color='#aa6666'"
+       onmouseout="this.style.color='#3a3a5a'">
+      remove star
+    </button>
+  </div>
+</div>
+
+  <div class="add-form" id="add-form">
+    <textarea id="form-message" placeholder="leave your light..." rows="3" maxlength="280"></textarea>
+    <input type="text" id="form-author" placeholder="your name (optional)" maxlength="40" />
+    <div class="form-buttons">
+      <button onclick="closeForm()">cancel</button>
+      <button class="submit" onclick="submitStar()">plant</button>
+    </div>
+  </div>
+
+  <script>
+    const SPACE_CODE = "{{ space_code }}";
+  </script>
+  <script src="/static/script.js"></script>
+</body>
+</html>

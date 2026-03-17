@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Night Sky</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0e1a;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Georgia', serif;
+      color: #e8e8f0;
+    }
+
+    .container {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: normal;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      color: #e8e8f0;
+    }
+
+    p {
+      font-size: 1rem;
+      color: #7a7a9a;
+      margin-bottom: 2.5rem;
+      line-height: 1.6;
+    }
+
+    input {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #3a3a5a;
+      color: #e8e8f0;
+      font-family: 'Georgia', serif;
+      font-size: 1.1rem;
+      padding: 0.5rem 0;
+      width: 280px;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    input::placeholder { color: #3a3a5a; }
+    input:focus { border-bottom-color: #8888bb; }
+
+    button {
+      display: block;
+      margin: 2rem auto 0;
+      background: transparent;
+      border: 1px solid #3a3a5a;
+      color: #e8e8f0;
+      font-family: 'Georgia', serif;
+      font-size: 0.95rem;
+      padding: 0.6rem 2rem;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      transition: border-color 0.3s, color 0.3s;
+    }
+
+    button:hover { border-color: #8888bb; color: #c8c8e8; }
+
+    .error {
+      color: #cc7777;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+      min-height: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>night sky</h1>
+    <p>create a space. share the link.<br>let people leave their light.</p>
+    <input type="text" id="sky-name" placeholder="give your sky a name" maxlength="40" />
+    <button onclick="createSky()">create sky</button>
+    <div class="error" id="error"></div>
+  </div>
+
+  <script>
+    async function createSky() {
+      const name = document.getElementById('sky-name').value.trim();
+      const error = document.getElementById('error');
+
+      if (!name) {
+        error.textContent = 'please give your sky a name';
+        return;
+      }
+
+      error.textContent = '';
+
+      try {
+        const res = await fetch('/api/space', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+        const data = await res.json();
+        window.location.href = data.url;
+      } catch (e) {
+        error.textContent = 'something went wrong. try again.';
+      }
+    }
+
+    document.getElementById('sky-name').addEventListener('keydown', e => {
+      if (e.key === 'Enter') createSky();
+    });
+  </script>
+</body>
+</html>
